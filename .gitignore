@@ -5,4 +5,4 @@
 **/wsl-venv
 **/piot-venv
 .venv
-.vscode
+.vscode/

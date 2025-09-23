@@ -23,25 +23,31 @@ class SystemPerformanceData(BaseIotData):
 	
 	def __init__(self, d = None):
 		super(SystemPerformanceData, self).__init__(name = ConfigConst.SYSTEM_PERF_MSG, typeID = ConfigConst.SYSTEM_PERF_TYPE, d = d)
-		pass
-	
+		
+		self.cpuUtilization = ConfigConst.DEFAULT_VAL
+		self.memUtilization = ConfigConst.DEFAULT_VAL
+  
 	def getCpuUtilization(self):
-		pass
+		return self.cpuUtilization
 	
 	def getDiskUtilization(self):
-		pass
+		raise NotImplementedError("Disk Utilization is not implemented in this version.")
 	
 	def getMemoryUtilization(self):
-		pass
+		return self.memUtilization
 	
 	def setCpuUtilization(self, cpuUtil):
-		pass
+		self.cpuUtilization = cpuUtil
+		self.updateTimeStamp()
 	
 	def setDiskUtilization(self, diskUtil):
-		pass
+		raise NotImplementedError("Disk Utilization is not implemented in this version.")
 	
 	def setMemoryUtilization(self, memUtil):
-		pass
+		self.memUtilization = memUtil
+		self.updateTimeStamp()
 	
-	def _handleUpdateData(self, data):
-		pass
+	def _handleUpdateData(self, data: "SystemPerformanceData"):
+		if data and isinstance(data, SystemPerformanceData):
+			self.cpuUtilization = data.getCpuUtilization()
+			self.memUtilization = data.getMemoryUtilization()

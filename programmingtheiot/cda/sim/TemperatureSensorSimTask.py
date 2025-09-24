@@ -12,7 +12,7 @@
 
 import logging
 
-from programmingtheiot.common.ConfigConst import ConfigConst
+import programmingtheiot.common.ConfigConst as ConfigConst
 
 from programmingtheiot.cda.sim.BaseSensorSimTask import BaseSensorSimTask
 from programmingtheiot.cda.sim.SensorDataGenerator import SensorDataGenerator, SensorDataSet
@@ -27,10 +27,10 @@ class TemperatureSensorSimTask(BaseSensorSimTask):
 
 	def __init__(self, dataSet: SensorDataSet = None):
 		super(TemperatureSensorSimTask, self).__init__(
-			name=ConfigConst.TEMPERATURE_SENSOR_NAME,
-			typeID=ConfigConst.TEMPERATURE_SENSOR_TYPE,
+			name=ConfigConst.TEMP_SENSOR_NAME,
+			typeID=ConfigConst.TEMP_SENSOR_TYPE,
 			dataSet=dataSet,
-			minVal=SensorDataGenerator.LOW_NORMAL_ENV_TEMPERATURE,
-			maxVal=SensorDataGenerator.HI_NORMAL_ENV_TEMPERATURE
+			minVal=SensorDataGenerator.LOW_NORMAL_INDOOR_TEMP,
+			maxVal=SensorDataGenerator.HI_NORMAL_INDOOR_TEMP
 		)
 	

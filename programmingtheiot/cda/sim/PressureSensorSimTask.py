@@ -12,7 +12,7 @@
 
 import logging
 
-from programmingtheiot.common.ConfigConst import ConfigConst
+import programmingtheiot.common.ConfigConst as ConfigConst
 
 from programmingtheiot.cda.sim.BaseSensorSimTask import BaseSensorSimTask
 from programmingtheiot.cda.sim.SensorDataGenerator import SensorDataGenerator, SensorDataSet

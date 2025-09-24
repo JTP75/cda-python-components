@@ -31,7 +31,7 @@ class SensorAdapterManager(object):
     TODO write a desc pls
     """
 
-    def __init__(self):
+    def __init__(self, dml: IDataMessageListener = None):
         self.configUtil = ConfigUtil()
         
         self.useEmulator = self.configUtil.getBoolean(
@@ -64,7 +64,7 @@ class SensorAdapterManager(object):
             misfire_grace_time=15,
         )
         
-        self.dataMessageListener = None
+        self.dataMessageListener = dml
         self.humidityAdapter = None
         self.pressureAdapter = None
         self.temperatureAdapter = None

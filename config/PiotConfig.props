@@ -45,6 +45,7 @@ enableCoapServer = False
 enableCoapClient = False
 enableSystemPerformance = True
 enableSensing    = False
+enableActuation  = False
 enableLogging    = True
 pollCycleSecs    = 5
 testGdaDataPath  = /tmp/gda-data

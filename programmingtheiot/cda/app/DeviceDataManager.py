@@ -259,6 +259,7 @@ class DeviceDataManager(IDataMessageListener):
         
         # this is the current 'model' step
         # right now, we only handle temperature changes and print warning for other sensor types
+        # should be more later
         
         logging.debug(f"Handling sensor data analysis: {data}")
         if data and data.getTypeID()==ConfigConst.TEMP_SENSOR_TYPE:

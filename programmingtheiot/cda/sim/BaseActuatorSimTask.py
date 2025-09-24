@@ -19,7 +19,7 @@ from programmingtheiot.data.ActuatorData import ActuatorData
 
 class BaseActuatorSimTask():
 	"""
-	Shell representation of class for student implementation.
+	Base actuator simulation task. This provides basic functionality for all actuator simulation tasks.
 	
 	"""
 

@@ -19,7 +19,7 @@ from programmingtheiot.cda.sim.SensorDataGenerator import SensorDataSet
 
 class BaseSensorSimTask():
     """
-    Shell representation of class for student implementation.
+    Base sensor simulation task. This provides basic functionality for all sensor simulation tasks.
     
     """
 

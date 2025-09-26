@@ -10,6 +10,7 @@
 # Programming the Internet of Things project.
 # 
 
+# import smbus # USE THIS THINGY
 import logging
 
 from programmingtheiot.data.SensorData import SensorData

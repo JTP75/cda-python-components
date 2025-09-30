@@ -15,31 +15,42 @@ import programmingtheiot.common.ConfigConst as ConfigConst
 from programmingtheiot.data.BaseIotData import BaseIotData
 
 class SensorData(BaseIotData):
-	"""
-	Shell representation of class for student implementation.
-	
-	"""
-		
-	def __init__(self, typeID: int = ConfigConst.DEFAULT_SENSOR_TYPE, name = ConfigConst.NOT_SET, d = None):
-		super(SensorData, self).__init__(name = name, typeID = typeID, d = d)
-		
-		self.value = ConfigConst.DEFAULT_VAL
-	
-	def getSensorType(self) -> int:
-		"""
-		Returns the sensor type to the caller.
-		
-		@return int
-		"""
-		return self.sensorType
-	
-	def getValue(self) -> float:
-		return self.value
-	
-	def setValue(self, newVal: float):
-		self.value = newVal
-		self.updateTimeStamp()
-		
-	def _handleUpdateData(self, data: "SensorData"):
-		if data and isinstance(data, SensorData):
-			self.value = data.getValue()
+    """
+    Shell representation of class for student implementation.
+    
+    """
+        
+    def __init__(self, typeID: int = ConfigConst.DEFAULT_SENSOR_TYPE, name = ConfigConst.NOT_SET, d = None):
+        super(SensorData, self).__init__(name = name, typeID = typeID, d = d)
+        
+        self.value = ConfigConst.DEFAULT_VAL
+    
+    def getSensorType(self) -> int:
+        """
+        Returns the sensor type to the caller.
+        
+        @return int
+        """
+        return self.sensorType
+    
+    def getValue(self) -> float:
+        return self.value
+    
+    def setValue(self, newVal: float):
+        self.value = newVal
+        self.updateTimeStamp()
+        
+    def _handleUpdateData(self, data: "SensorData"):
+        if data and isinstance(data, SensorData):
+            self.value = data.getValue()
+    
+    def __str__(self) -> str:
+       return '{}={},{}={},{}={},{}={},{}={},{}={},{}={}'.format(
+            ConfigConst.NAME_PROP, self.name,
+            ConfigConst.TYPE_ID_PROP, self.typeID,
+            ConfigConst.TIMESTAMP_PROP, self.timeStamp,
+            ConfigConst.STATUS_CODE_PROP, self.statusCode,
+            ConfigConst.HAS_ERROR_PROP, self.hasError,
+            ConfigConst.LOCATION_ID_PROP, self.locationID,
+            ConfigConst.VALUE_PROP, self.value
+       )

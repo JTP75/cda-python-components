@@ -20,13 +20,22 @@ from programmingtheiot.cda.sim.BaseSensorSimTask import BaseSensorSimTask
 from pisense import SenseHAT
 
 class TemperatureSensorEmulatorTask(BaseSensorSimTask):
-	"""
-	Shell representation of class for student implementation.
-	
-	"""
+    """
+    Shell representation of class for student implementation.
+    
+    """
 
-	def __init__(self, dataSet = None):
-		pass
-	
-	def generateTelemetry(self) -> SensorData:
-		pass
+    def __init__(self):
+        super(TemperatureSensorEmulatorTask, self).__init__(
+            name = ConfigConst.TEMP_SENSOR_NAME,
+            typeID = ConfigConst.TEMP_SENSOR_TYPE
+        )
+        
+        enableEmulation = ConfigUtil().getUseEmulator()
+        self.sh = SenseHAT(emulate=enableEmulation)
+    
+    def generateTelemetry(self) -> SensorData:
+        sensorData = SensorData(name=self.getName(), typeID=self.getTypeID())
+        sensorData.setValue(self.sh.environ.temperature)
+        self.latestSensorData = sensorData
+        return sensorData

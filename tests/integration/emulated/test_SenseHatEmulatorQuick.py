@@ -14,6 +14,7 @@ import unittest
 from time import sleep
 
 from pisense import SenseHAT
+from programmingtheiot.common.ConfigUtil import ConfigUtil
 
 class SenseHatEmulatorQuickTest(unittest.TestCase):
     """
@@ -47,8 +48,7 @@ class SenseHatEmulatorQuickTest(unittest.TestCase):
         # alternatively, you can force hardware by running the command
         #
         #       SENSE_HAT_EMULATE=false python -m unittest ....
-        emulate = os.getenv('SENSE_HAT_EMULATE', 'true').lower()
-        if emulate in ['true', '1', 'yes', 'y']:
+        if ConfigUtil().getUseEmulator():
             logging.info("Testing SenseHatEmulatorQuickTest class [using SenseHAT emulator]...")
             self.sh = SenseHAT(emulate = True)
         else:

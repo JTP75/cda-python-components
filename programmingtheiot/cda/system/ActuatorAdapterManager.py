@@ -31,10 +31,13 @@ class ActuatorAdapterManager(object):
     def __init__(self, dml: IDataMessageListener = None):
         self.configUtil = ConfigUtil()		
   
-        self.useEmulator = self.configUtil.getBoolean(
+        self.useSimulator = not self.configUtil.getBoolean(
             section=ConfigConst.CONSTRAINED_DEVICE,
             key=ConfigConst.ENABLE_EMULATOR_KEY
         )
+        
+        self.useEmulator = self.configUtil.getUseEmulator()
+            
         self.locationID = self.configUtil.getProperty(
             section=ConfigConst.CONSTRAINED_DEVICE,
             key=ConfigConst.DEVICE_LOCATION_ID_KEY,
@@ -43,14 +46,43 @@ class ActuatorAdapterManager(object):
         
         self.dataMessageListener = dml
         
-        logging.info(f"The ActuatorAdapaterManager is configured to use {'emulators' if self.useEmulator else 'simulators'}.")
+        logging.info(f"The ActuatorAdapaterManager is configured to use {'simulators' if self.useSimulator else 'emulators' if self.useEmulator else 'hardware'}.")
          
         self._initEnvironmentalActuationTasks()
         
     def _initEnvironmentalActuationTasks(self):
-        self.humidifierActuator = HumidifierActuatorSimTask()
-        self.hvacActuator = HvacActuatorSimTask()
-        self.ledActuator = None
+        if self.useSimulator:
+            self.humidifierActuator = HumidifierActuatorSimTask()
+            self.hvacActuator = HvacActuatorSimTask()
+            self.ledActuator = None
+        elif self.useEmulator:
+            hueModule = import_module('programmingtheiot.cda.emulated.HumidifierEmulatorTask', 'HumidiferEmulatorTask')
+            hueClazz = getattr(hueModule, 'HumidifierEmulatorTask')
+            self.humidifierActuator = hueClazz()
+            
+            # create the HVAC actuator emulator
+            hveModule = import_module('programmingtheiot.cda.emulated.HvacEmulatorTask', 'HvacEmulatorTask')
+            hveClazz = getattr(hveModule, 'HvacEmulatorTask')
+            self.hvacActuator = hveClazz()
+            
+            # create the LED display actuator emulator
+            leDisplayModule = import_module('programmingtheiot.cda.emulated.LedDisplayEmulatorTask', 'LedDisplayEmulatorTask')
+            leClazz = getattr(leDisplayModule, 'LedDisplayEmulatorTask')
+            self.ledActuator = leClazz()
+        else: # hw should be the same, assuming i set up my shi right...
+            hueModule = import_module('programmingtheiot.cda.emulated.HumidifierEmulatorTask', 'HumidiferEmulatorTask')
+            hueClazz = getattr(hueModule, 'HumidifierEmulatorTask')
+            self.humidifierActuator = hueClazz()
+            
+            # create the HVAC actuator emulator
+            hveModule = import_module('programmingtheiot.cda.emulated.HvacEmulatorTask', 'HvacEmulatorTask')
+            hveClazz = getattr(hveModule, 'HvacEmulatorTask')
+            self.hvacActuator = hveClazz()
+            
+            # create the LED display actuator emulator
+            leDisplayModule = import_module('programmingtheiot.cda.emulated.LedDisplayEmulatorTask', 'LedDisplayEmulatorTask')
+            leClazz = getattr(leDisplayModule, 'LedDisplayEmulatorTask')
+            self.ledActuator = leClazz()
 
     def sendActuatorCommand(self, data: ActuatorData) -> ActuatorData:
         responseData = None
@@ -62,7 +94,7 @@ class ActuatorAdapterManager(object):
                     responseData = self.humidifierActuator.updateActuator(data)
                 elif data.getTypeID() == ConfigConst.HVAC_ACTUATOR_TYPE and self.hvacActuator:
                     responseData = self.hvacActuator.updateActuator(data)
-                elif data.getTypeID() == ConfigConst.LED_ACTUATOR_TYPE and self.ledActuator:
+                elif data.getTypeID() == ConfigConst.LED_DISPLAY_ACTUATOR_TYPE and self.ledActuator:
                     responseData = self.ledActuator.updateActuator(data)
                 else:
                     logging.warning(f"No valid actuator type. Ignoring actuation for type: {data.getTypeID()}")

@@ -34,9 +34,12 @@ class SensorAdapterManager(object):
     def __init__(self, dml: IDataMessageListener = None):
         self.configUtil = ConfigUtil()
         
-        self.useEmulator = self.configUtil.getBoolean(
+        self.useSimulator = not self.configUtil.getBoolean(
             section=ConfigConst.CONSTRAINED_DEVICE,
             key=ConfigConst.ENABLE_EMULATOR_KEY
+        )
+        
+        self.useEmulator = self.configUtil.getUseEmulator(
         )
         
         self.pollRate = self.configUtil.getInteger(
@@ -105,8 +108,7 @@ class SensorAdapterManager(object):
             defaultVal=SensorDataGenerator.HI_NORMAL_INDOOR_TEMP
         )
         
-        # for now, we only support simulation
-        if not self.useEmulator:
+        if self.useSimulator:
             self.dataGenerator = SensorDataGenerator()
             
             humidityData = self.dataGenerator.generateDailyEnvironmentHumidityDataSet(
@@ -128,6 +130,35 @@ class SensorAdapterManager(object):
             self.humidityAdapter = HumiditySensorSimTask(dataSet=humidityData)
             self.pressureAdapter = PressureSensorSimTask(dataSet=pressureData)
             self.temperatureAdapter = TemperatureSensorSimTask(dataSet=temperatureData)
+            
+        elif self.useEmulator:
+            
+            heModule = import_module('programmingtheiot.cda.emulated.HumiditySensorEmulatorTask', 'HumiditySensorEmulatorTask')
+            heClazz = getattr(heModule, 'HumiditySensorEmulatorTask')
+            self.humidityAdapter = heClazz()
+            
+            peModule = import_module('programmingtheiot.cda.emulated.PressureSensorEmulatorTask', 'PressureSensorEmulatorTask')
+            peClazz = getattr(peModule, 'PressureSensorEmulatorTask')
+            self.pressureAdapter = peClazz()
+            
+            teModule = import_module('programmingtheiot.cda.emulated.TemperatureSensorEmulatorTask', 'TemperatureSensorEmulatorTask')
+            teClazz = getattr(teModule, 'TemperatureSensorEmulatorTask')
+            self.temperatureAdapter = teClazz()
+        
+        else:
+            
+            heModule = import_module('programmingtheiot.cda.emulated.HumiditySensorEmulatorTask', 'HumiditySensorEmulatorTask')
+            heClazz = getattr(heModule, 'HumiditySensorEmulatorTask')
+            self.humidityAdapter = heClazz()
+            
+            peModule = import_module('programmingtheiot.cda.emulated.PressureSensorEmulatorTask', 'PressureSensorEmulatorTask')
+            peClazz = getattr(peModule, 'PressureSensorEmulatorTask')
+            self.pressureAdapter = peClazz()
+            
+            teModule = import_module('programmingtheiot.cda.emulated.TemperatureSensorEmulatorTask', 'TemperatureSensorEmulatorTask')
+            teClazz = getattr(teModule, 'TemperatureSensorEmulatorTask')
+            self.temperatureAdapter = teClazz()
+            
         
 
     def handleTelemetry(self):

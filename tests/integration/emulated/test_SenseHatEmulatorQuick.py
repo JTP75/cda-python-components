@@ -39,7 +39,14 @@ class SenseHatEmulatorQuickTest(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         logging.basicConfig(format = '%(asctime)s:%(module)s:%(levelname)s:%(message)s', level = logging.DEBUG)
-        
+       
+        # NOTE: if running on a pi, you must add the following line to the .venv/bin/activate:
+        #
+        #       export SENSE_HAT_EMULATE=false
+        #
+        # alternatively, you can force hardware by running the command
+        #
+        #       SENSE_HAT_EMULATE=false python -m unittest ....
         emulate = os.getenv('SENSE_HAT_EMULATE', 'true').lower()
         if emulate in ['true', '1', 'yes', 'y']:
             logging.info("Testing SenseHatEmulatorQuickTest class [using SenseHAT emulator]...")

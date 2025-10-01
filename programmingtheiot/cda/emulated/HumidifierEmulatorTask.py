@@ -22,17 +22,36 @@ from programmingtheiot.cda.sim.BaseActuatorSimTask import BaseActuatorSimTask
 from pisense import SenseHAT
 
 class HumidifierEmulatorTask(BaseActuatorSimTask):
-	"""
-	Shell representation of class for student implementation.
-	
-	"""
+    """
+    Shell representation of class for student implementation.
+    
+    """
 
-	def __init__(self):
-		pass
+    def __init__(self):
+        super(HumidifierEmulatorTask,self).__init__(
+            name=ConfigConst.HUMIDIFIER_ACTUATOR_NAME,
+            typeID=ConfigConst.HUMIDIFIER_ACTUATOR_TYPE,
+            simpleName="HUMIDIFIER"
+        )
+        
+        enableEmulation = ConfigUtil().getUseEmulator()
+        self.sh = SenseHAT(emulate=enableEmulation)
 
-	def _activateActuator(self, val: float = ConfigConst.DEFAULT_VAL, stateData: str = None) -> int:
-		pass
+    def _activateActuator(self, val: float = ConfigConst.DEFAULT_VAL, stateData: str = None) -> int:
+        if self.sh.screen:
+            self.sh.screen.scroll_text(f"{self.getSimpleName()} ON: {val:.2f}C")
+            return 0
+        else:
+            logging.warning("No SenseHAT LED screen instance found.")
+            return -1
 
-	def _deactivateActuator(self, val: float = ConfigConst.DEFAULT_VAL, stateData: str = None) -> int:
-		pass
-	
+    def _deactivateActuator(self, val: float = ConfigConst.DEFAULT_VAL, stateData: str = None) -> int:
+        if self.sh.screen:
+            self.sh.screen.scroll_text(f"{self.getSimpleName()} OFF")
+            sleep(5)
+            self.sh.screen.clear()
+            return 0
+        else:
+            logging.warning("No SenseHAT LED screen instance found.")
+            return -1
+    

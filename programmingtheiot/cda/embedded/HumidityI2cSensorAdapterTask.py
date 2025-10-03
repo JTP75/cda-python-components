@@ -10,23 +10,35 @@
 # Programming the Internet of Things project.
 # 
 
-# import smbus # USE THIS THINGY
+import smbus
 import logging
 
 from programmingtheiot.data.SensorData import SensorData
+from programmingtheiot.cda.sim.SensorDataGenerator import SensorDataGenerator
 
-class HumidityI2cSensorAdapterTask():
-	"""
-	Shell representation of class for student implementation.
-	
-	"""
 
-	def __init__(self):
-		pass
-	
-	def generateTelemetry(self) -> SensorData:
-		pass
-	
-	def getTelemetryValue(self) -> float:
-		pass
-	
+import programmingtheiot.common.ConfigConst as ConfigConst
+from programmingtheiot.cda.sim.BaseSensorSimTask import BaseSensorSimTask
+
+class HumidityI2cSensorAdapterTask(BaseSensorSimTask):
+    """
+    TODO desc
+    """
+
+    def __init__(self):
+        super(HumidityI2cSensorAdapterTask, self).__init__(
+            name = ConfigConst.HUMIDITY_SENSOR_NAME,
+            typeID = ConfigConst.HUMIDITY_SENSOR_TYPE,
+            minVal=SensorDataGenerator.LOW_NORMAL_ENV_HUMIDITY,
+            maxVal=SensorDataGenerator.HI_NORMAL_ENV_HUMIDITY
+        )
+        
+        self.hts221addr = 0x5F # this is the addr for humid/temp sensor HTS221
+        self.i2cbus = smbus.SMBus(1)
+        
+        # init the sensor
+        self.i2cbus.write_byte_data(self.hts221addr, 0, 0)
+    
+    def generateTelemetry(self) -> SensorData:
+        pass
+    

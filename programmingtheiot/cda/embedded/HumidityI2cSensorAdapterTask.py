@@ -27,8 +27,8 @@ class HumidityI2cSensorAdapterTask(BaseSensorSimTask):
 
     def __init__(self):
         super(HumidityI2cSensorAdapterTask, self).__init__(
-            name = ConfigConst.HUMIDITY_SENSOR_NAME,
-            typeID = ConfigConst.HUMIDITY_SENSOR_TYPE,
+            name=ConfigConst.HUMIDITY_SENSOR_NAME,
+            typeID=ConfigConst.HUMIDITY_SENSOR_TYPE,
             minVal=SensorDataGenerator.LOW_NORMAL_ENV_HUMIDITY,
             maxVal=SensorDataGenerator.HI_NORMAL_ENV_HUMIDITY
         )
@@ -37,8 +37,12 @@ class HumidityI2cSensorAdapterTask(BaseSensorSimTask):
         self.i2cbus = smbus.SMBus(1)
         
         # init the sensor
-        self.i2cbus.write_byte_data(self.hts221addr, 0, 0)
+        # self.i2cbus.write_byte_data(self.hts221addr, 0, 0)
     
     def generateTelemetry(self) -> SensorData:
-        pass
+        sensorData = SensorData(name=self.getName(), typeID=self.getTypeID())
+        logging.debug(f"who am i: {self.i2cbus.read_byte_data(self.hts221addr, 0x0F)}")
+        sensorData.setValue(0)
+        self.latestSensorData = sensorData
+        return sensorData
     

@@ -60,10 +60,10 @@ class HumidityI2cSensorAdapterTask(BaseSensorSimTask):
             h1_t0_out_h = self.i2cbus.read_byte_data(self.hts221addr, 0x3B)
             h1_t0_out = (h1_t0_out_h << 8) | h1_t0_out_l
             
-            h0_rh = self.i2cbus.read_byte_data(self.hts221addr, 0x30) >> 2
-            h1_rh = self.i2cbus.read_byte_data(self.hts221addr, 0x31) >> 2
+            h0_rh = self.i2cbus.read_byte_data(self.hts221addr, 0x30) >> 1
+            h1_rh = self.i2cbus.read_byte_data(self.hts221addr, 0x31) >> 1
             
-            h_rh = (((h_out - h0_t0_out) * (h1_rh - h0_rh)) / (h1_t0_out - h0_t0_out) + h0_rh) / 2
+            h_rh = (((h_out - h0_t0_out) * (h1_rh - h0_rh)) / (h1_t0_out - h0_t0_out) + h0_rh)
             logging.debug(f"Humidity: {h_rh} %")
             sensorData.setValue(h_rh)
             

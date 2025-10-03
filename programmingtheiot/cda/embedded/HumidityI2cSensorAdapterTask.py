@@ -41,8 +41,36 @@ class HumidityI2cSensorAdapterTask(BaseSensorSimTask):
     
     def generateTelemetry(self) -> SensorData:
         sensorData = SensorData(name=self.getName(), typeID=self.getTypeID())
-        logging.debug(f"who am i: {self.i2cbus.read_byte_data(self.hts221addr, 0x0F)}")
-        sensorData.setValue(0)
+        
+        status = self.i2cbus.read_byte_data(self.hts221addr, 0x27)
+        logging.debug(f"status {status}")
+        
+        if status & 0x01:
+            # get humidity regs
+            h_out_l = self.i2cbus.read_byte_data(self.hts221addr, 0x28)
+            h_out_h = self.i2cbus.read_byte_data(self.hts221addr, 0x29)
+            h_out = (h_out_h << 8) | h_out_l
+            
+            # get calibration regs
+            h0_t0_out_l = self.i2cbus.read_byte_data(self.hts221addr, 0x36)
+            h0_t0_out_h = self.i2cbus.read_byte_data(self.hts221addr, 0x37)
+            h0_t0_out = (h0_t0_out_h << 8) | h0_t0_out_l
+            
+            h1_t0_out_l = self.i2cbus.read_byte_data(self.hts221addr, 0x3A)
+            h1_t0_out_h = self.i2cbus.read_byte_data(self.hts221addr, 0x3B)
+            h1_t0_out = (h1_t0_out_h << 8) | h1_t0_out_l
+            
+            h0_rh = self.i2cbus.read_byte_data(self.hts221addr, 0x30) / 2
+            h1_rh = self.i2cbus.read_byte_data(self.hts221addr, 0x31) / 2
+            
+            h_rh = ((h_out - h0_t0_out) * (h1_rh - h0_rh)) / (h1_t0_out - h0_t0_out) + h0_rh
+            logging.debug(f"Humidity: {h_rh} %")
+            sensorData.setValue(h_rh)
+            
+        else:
+            logging.warning("Humidity data not ready")
+            return None
+        
         self.latestSensorData = sensorData
         return sensorData
     

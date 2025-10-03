@@ -31,7 +31,7 @@ class HumidityI2cTaskTest(unittest.TestCase):
 	def setUpClass(self):
 		logging.basicConfig(format = '%(asctime)s:%(module)s:%(levelname)s:%(message)s', level = logging.DEBUG)
 		logging.info("Testing HumidityI2cTask class...")
-		self.hEmuTask = HumidityI2cSensorAdapterTask()
+		self.hI2cTask = HumidityI2cSensorAdapterTask()
 		
 	def setUp(self):
 		pass
@@ -39,8 +39,8 @@ class HumidityI2cTaskTest(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	def testReadEmulator(self):
-		sd1 = self.hEmuTask.generateTelemetry()
+	def testReadBus(self):
+		sd1 = self.hI2cTask.generateTelemetry()
 		
 		if sd1:
 			self.assertEqual(sd1.getTypeID(), ConfigConst.HUMIDITY_SENSOR_TYPE)
@@ -51,7 +51,7 @@ class HumidityI2cTaskTest(unittest.TestCase):
 		else:
 			logging.warning("FAIL: SensorData is None.")
 			
-		sd2 = self.hEmuTask.generateTelemetry()
+		sd2 = self.hI2cTask.generateTelemetry()
 		
 		if sd2:
 			self.assertEqual(sd2.getTypeID(), ConfigConst.HUMIDITY_SENSOR_TYPE)

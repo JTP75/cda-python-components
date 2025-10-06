@@ -9,8 +9,9 @@
 
 import logging
 import unittest
-
 import time
+
+import redis
 
 import programmingtheiot.common.ConfigConst as ConfigConst
 
@@ -25,6 +26,21 @@ class PersistenceClientAdapterTest(unittest.TestCase):
     """
     This test case class contains very basic unit tests for
     RedisPersistenceAdapter. 
+    
+    NOTE all the tests here require a running Redis server
+    instance on localhost:6379 unless otherwise configured.
+    For Ubuntu, you can install Redis via snap using
+    
+    ```
+    sudo snap install redis
+    ```
+    
+    and start/stop the server using
+    
+    ```
+    sudo snap start redis
+    sudo snap stop redis
+    ```
     """
     
     @classmethod
@@ -55,7 +71,17 @@ class PersistenceClientAdapterTest(unittest.TestCase):
         sData.setTypeID(ConfigConst.HUMIDITY_SENSOR_TYPE)
         sData.setValue(55.0)
         
-        self.assertTrue(self.rpa.storeSensorData(sData))
+        self.assertTrue(self.rpa.storeSensorData(ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE, sData))
+        
+        # check the server manually to see if the data is there
+        time.sleep(1)
+        sDataOut = None
+        with redis.Redis(host=self.rpa.host, port=self.rpa.port) as testCli:
+            sDataJsonOut = testCli.get(ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE.value)
+            sDataOut = DataUtil().jsonToSensorData(sDataJsonOut)
+            
+        self.assertIsNotNone(sDataOut)
+        self.assertDictEqual(sData.__dict__, sDataOut.__dict__)
         
         self.rpa.disconnectClient()
     

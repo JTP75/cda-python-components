@@ -14,6 +14,7 @@ import logging
 
 from programmingtheiot.cda.connection.CoapClientConnector import CoapClientConnector
 from programmingtheiot.cda.connection.MqttClientConnector import MqttClientConnector
+from programmingtheiot.cda.connection.RedisPersistenceAdapter import RedisPersistenceAdapter
 
 from programmingtheiot.cda.system.ActuatorAdapterManager import ActuatorAdapterManager
 from programmingtheiot.cda.system.SensorAdapterManager import SensorAdapterManager
@@ -75,6 +76,8 @@ class DeviceDataManager(IDataMessageListener):
         self.mqttClient = None
         self.coapClient = None
         self.coapServer = None
+        
+        self.redisClient = RedisPersistenceAdapter()
         
         if self.enableSystemPerformanceData:
             self.systemPerformanceManager = SystemPerformanceManager()
@@ -187,6 +190,7 @@ class DeviceDataManager(IDataMessageListener):
         logging.debug(f"Handling sensor message: {data}")
         if data:
             logging.debug("Processing sensor data...")
+            self.redisClient.storeSensorData(ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE, data)
             self._handleSensorDataAnalysis(data=data)
             return True
         else:
@@ -226,6 +230,9 @@ class DeviceDataManager(IDataMessageListener):
         if self.sensorAdapterManager:
             self.sensorAdapterManager.startManager()
             
+        if self.redisClient:
+            self.redisClient.connectClient()
+            
         logging.info("DeviceDataManager started.")
         
     def stopManager(self):
@@ -236,6 +243,9 @@ class DeviceDataManager(IDataMessageListener):
         
         if self.sensorAdapterManager:	
             self.sensorAdapterManager.stopManager()
+            
+        if self.redisClient:
+            self.redisClient.disconnectClient()
             
         logging.info("Stopped DeviceDataManager.")
         

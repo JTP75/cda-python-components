@@ -9,5 +9,5 @@
     "python.testing.pytestEnabled": false,
     "python.testing.unittestEnabled": true,
     "python.terminal.activateEnvInCurrentTerminal": true,
-    "python.defaultInterpreterPath": "/home/pacgiel/northeastern/TELE6530/piot/cda-python-components/.venv/bin/python"
+    "python.defaultInterpreterPath": "/home/pacel/northeastern/TELE6530/piot/cda-python-components/.venv/bin/python"
 }

@@ -39,7 +39,6 @@ class ConstrainedDeviceApp():
         """
         logging.info("Initializing CDA...")
         
-        self.performanceManager = SystemPerformanceManager()
         self.dataManager = DeviceDataManager()
         
         self.isStarted = False
@@ -56,7 +55,6 @@ class ConstrainedDeviceApp():
         """
         logging.info("Starting CDA...")
         
-        self.performanceManager.startManager()
         self.dataManager.startManager()
         
         self.isStarted = True
@@ -70,7 +68,6 @@ class ConstrainedDeviceApp():
         """
         logging.info("CDA stopping...")
         
-        self.performanceManager.stopManager()
         self.dataManager.stopManager()
         self.isStarted = False
         

@@ -25,58 +25,69 @@ from programmingtheiot.cda.system.SystemMemUtilTask import SystemMemUtilTask
 from programmingtheiot.data.SystemPerformanceData import SystemPerformanceData
 
 class SystemPerformanceManager(object):
-	"""
-	Shell representation of class for student implementation.
-	
-	"""
+    """
+    Shell representation of class for student implementation.
+    
+    """
 
-	def __init__(self):
-		configUtil = ConfigUtil()
+    def __init__(self):
+        configUtil = ConfigUtil()
   
-		self.pollRate = configUtil.getInteger(
-			section=ConfigConst.CONSTRAINED_DEVICE,
-			key=ConfigConst.POLL_CYCLES_KEY,
-			defaultVal=ConfigConst.DEFAULT_POLL_CYCLES,
-		)
-		self.locationID = configUtil.getProperty(
-			section=ConfigConst.CONSTRAINED_DEVICE, 
-			key=ConfigConst.DEVICE_LOCATION_ID_KEY, 
-			defaultVal=ConfigConst.NOT_SET,
-		)
+        self.pollRate = configUtil.getInteger(
+            section=ConfigConst.CONSTRAINED_DEVICE,
+            key=ConfigConst.POLL_CYCLES_KEY,
+            defaultVal=ConfigConst.DEFAULT_POLL_CYCLES,
+        )
+        self.locationID = configUtil.getProperty(
+            section=ConfigConst.CONSTRAINED_DEVICE, 
+            key=ConfigConst.DEVICE_LOCATION_ID_KEY, 
+            defaultVal=ConfigConst.NOT_SET,
+        )
   
-		if self.pollRate <= 0:
-			self.pollRate = ConfigConst.DEFAULT_POLL_CYCLES
+        if self.pollRate <= 0:
+            self.pollRate = ConfigConst.DEFAULT_POLL_CYCLES
    
-		self.dataMsgListener = None
+        self.dataMsgListener = None
   
-		self.scheduler = BackgroundScheduler()
-		self.scheduler.add_job(self.handleTelemetry, 'interval', seconds=self.pollRate)
+        self.scheduler = BackgroundScheduler()
+        self.scheduler.add_job(self.handleTelemetry, 'interval', seconds=self.pollRate)
   
-		self.cpuUtilTask = SystemCpuUtilTask()
-		self.memUtilTask = SystemMemUtilTask()
+        self.cpuUtilTask = SystemCpuUtilTask()
+        self.memUtilTask = SystemMemUtilTask()
 
-	def handleTelemetry(self):
-		cpuUtilPct = self.cpuUtilTask.getTelemetryValue()
-		memUtilPct = self.memUtilTask.getTelemetryValue()
-		logging.debug(f"CPU utilization is {cpuUtilPct} percent, and memory utilization is {memUtilPct} percent.")
-		
-	def setDataMessageListener(self, listener: IDataMessageListener) -> bool:
-		pass
-	
-	def startManager(self):
-		logging.info("Starting SystemPerformanceManager...")
+    def handleTelemetry(self):
+        cpuUtilPct = self.cpuUtilTask.getTelemetryValue()
+        memUtilPct = self.memUtilTask.getTelemetryValue()
+        
+        logging.debug(f"CPU utilization is {cpuUtilPct} percent, and memory utilization is {memUtilPct} percent.")
+        
+        spd = SystemPerformanceData()
+        spd.setLocationID(self.locationID)
+        spd.setCpuUtilization(cpuUtilPct)
+        spd.setMemoryUtilization(memUtilPct)
+        
+        if self.dataMsgListener:
+            self.dataMsgListener.handleSystemPerformanceMessage(data = spd)
+        
+    def setDataMessageListener(self, listener: IDataMessageListener) -> bool:
+        if listener:
+            self.dataMsgListener = listener
+        return True
+    
+    def startManager(self):
+        logging.info("Starting SystemPerformanceManager...")
   
-		if not self.scheduler.running:
-			self.scheduler.start()
-			logging.info("Started SystemPerformanceManager.")
-		else:
-			logging.warning("SystemPerformanceManager scheduler already started.")
-		
-	def stopManager(self):
-		logging.info("Stopping SystemPerformanceManager...")
-	
-		try:
-			self.scheduler.shutdown()
-			logging.info("Stopped SystemPerformanceManager.")
-		except:
-			logging.warning("SystemPerformanceManager scheduler already stopped.")
+        if not self.scheduler.running:
+            self.scheduler.start()
+            logging.info("Started SystemPerformanceManager.")
+        else:
+            logging.warning("SystemPerformanceManager scheduler already started.")
+        
+    def stopManager(self):
+        logging.info("Stopping SystemPerformanceManager...")
+    
+        try:
+            self.scheduler.shutdown()
+            logging.info("Stopped SystemPerformanceManager.")
+        except:
+            logging.warning("SystemPerformanceManager scheduler already stopped.")

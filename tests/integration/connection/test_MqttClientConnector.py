@@ -45,7 +45,7 @@ class MqttClientConnectorTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    # @unittest.skip("Ignore for now.")
+    @unittest.skip("Ignore for now.")
     def testConnectAndDisconnect(self):       
         self.mcc.connectClient()
         sleep(2)
@@ -57,20 +57,20 @@ class MqttClientConnectorTest(unittest.TestCase):
         sleep(2)
         self.assertFalse(self.mcc.connected)
 
-    @unittest.skip("Ignore for now.")
+    # @unittest.skip("Ignore for now.")
     def testConnectAndCDAManagementStatusPubSub(self):
         qos = 1
         
         self.mcc.connectClient()
         sleep(1)
         
-        self.mcc.subscribeToTopic(resource = ResourceNameEnum.CDA_MGMT_STATUS_MSG_RESOURCE, qos = qos)
+        self.assertTrue(self.mcc.subscribeToTopic(resource = ResourceNameEnum.CDA_MGMT_STATUS_MSG_RESOURCE, qos = qos), "\033[1;31msubscribe call returned false\033[0m")
         sleep(5)
         
-        self.mcc.publishMessage(resource = ResourceNameEnum.CDA_MGMT_STATUS_MSG_RESOURCE, msg = "TEST: This is the CDA message payload.", qos = qos)
+        self.assertTrue(self.mcc.publishMessage(resource = ResourceNameEnum.CDA_MGMT_STATUS_MSG_RESOURCE, msg = "TEST: This is the CDA message payload.", qos = qos), "\033[1;31mpublish call returned false\033[0m")
         sleep(5)
         
-        self.mcc.unsubscribeFromTopic(resource = ResourceNameEnum.CDA_MGMT_STATUS_MSG_RESOURCE)
+        self.assertTrue(self.mcc.unsubscribeFromTopic(resource = ResourceNameEnum.CDA_MGMT_STATUS_MSG_RESOURCE), "\033[1;31munsubscribe call returned false\033[0m")
         sleep(5)
                 
         self.mcc.disconnectClient()

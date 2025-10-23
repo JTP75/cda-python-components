@@ -154,14 +154,57 @@ f"""
         """
         pass
     
-    def publishMessage(self, resource: ResourceNameEnum = None, msg: str = None, qos: int = ConfigConst.DEFAULT_QOS):
-        pass
+    def publishMessage(self, resource: ResourceNameEnum = None, msg: str = None, qos: int = ConfigConst.DEFAULT_QOS) -> bool:
+        
+        # validations
+        if not resource:
+            logging.warning("No topic specified to publish to.")
+            return False
+        if not msg:
+            logging.warning(f"Cannot publish empty message to topic {resource}")
+            return False
+        if not 0 <= qos <= 2:
+            qos = ConfigConst.DEFAULT_QOS
+            
+        # publish
+        try:
+            info = self.mqttClient.publish(topic=resource.value, payload=msg, qos=qos)
+            info.wait_for_publish()
+            return True
+        except Exception as e:
+            logging.error(f"Publish failed: {str(e)}")
+            return False
     
-    def subscribeToTopic(self, resource: ResourceNameEnum = None, callback = None, qos: int = ConfigConst.DEFAULT_QOS):
-        pass
-    
-    def unsubscribeFromTopic(self, resource: ResourceNameEnum = None):
-        pass
+    def subscribeToTopic(self, resource: ResourceNameEnum = None, callback = None, qos: int = ConfigConst.DEFAULT_QOS) -> bool:
+        
+        # validations
+        if not resource:
+            logging.warning("No topic specified to subscribe to.")
+            return False
+            return False
+        if not 0 <= qos <= 2:
+            qos = ConfigConst.DEFAULT_QOS
+        
+        # subscribe
+        try:
+            logging.debug(f"Subscribing to {resource.value}")
+            self.mqttClient.subscribe(topic=resource.value, qos=qos)
+            return True
+        except Exception as e:
+            logging.error(f"Publish failed: {str(e)}")
+            return False
+            
+    def unsubscribeFromTopic(self, resource: ResourceNameEnum = None) -> bool:
+        
+        # validations
+        if not resource:
+            logging.warning("No topic specified to subscribe to.")
+            return False
+        
+        # unsubscribe
+        logging.debug(f"Unsubscribing from {resource.value}")
+        self.mqttClient.unsubscribe(resource.value)
+        return True
 
     def setDataMessageListener(self, listener: IDataMessageListener = None) -> bool:
-        pass
+        return False

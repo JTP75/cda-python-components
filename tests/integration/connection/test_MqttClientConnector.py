@@ -50,6 +50,8 @@ class MqttClientConnectorTest(unittest.TestCase):
         self.mcc.connectClient()
         sleep(2)
         self.assertTrue(self.mcc.connected)
+        
+        sleep(2)
                 
         self.mcc.disconnectClient()
         sleep(2)

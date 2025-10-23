@@ -207,4 +207,8 @@ f"""
         return True
 
     def setDataMessageListener(self, listener: IDataMessageListener = None) -> bool:
+        # TODO there arent any notifications to the listener yet
+        if not self.dataMessageListener:
+            self.dataMessageListener = listener
+            return True
         return False

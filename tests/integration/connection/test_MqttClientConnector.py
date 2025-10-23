@@ -57,7 +57,7 @@ class MqttClientConnectorTest(unittest.TestCase):
         sleep(2)
         self.assertFalse(self.mcc.connected)
 
-    # @unittest.skip("Ignore for now.")
+    @unittest.skip("Ignore for now.")
     def testConnectAndCDAManagementStatusPubSub(self):
         qos = 1
         
@@ -78,9 +78,6 @@ class MqttClientConnectorTest(unittest.TestCase):
     @unittest.skip("Ignore for now.")
     def testNewActuatorCmdPubSub(self):
         qos = 1
-    
-        # NOTE: delay can be anything you'd like - the sleep() calls are simply to slow things down a bit for observation
-        delay = self.cfg.getInteger(ConfigConst.MQTT_GATEWAY_SERVICE, ConfigConst.KEEP_ALIVE_KEY, ConfigConst.DEFAULT_KEEP_ALIVE)
         
         actuatorData = ActuatorData()
         payload = DataUtil().actuatorDataToJson(actuatorData)
@@ -92,36 +89,34 @@ class MqttClientConnectorTest(unittest.TestCase):
         
         self.mcc.publishMessage(resource = ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE, msg = payload, qos = qos)
         
-        sleep(delay)
+        sleep(3)
         
         self.mcc.disconnectClient()
         
-    @unittest.skip("Ignore for now.")
+    # @unittest.skip("Ignore for now.")
     def testActuatorCmdPubSub(self):
         qos = 0
-        delay = self.cfg.getInteger(ConfigConst.MQTT_GATEWAY_SERVICE, ConfigConst.KEEP_ALIVE_KEY, ConfigConst.DEFAULT_KEEP_ALIVE)
         
         actuatorData = ActuatorData()
         actuatorData.setCommand(7)
         
-        self.mcc.setDataMessageListener(DefaultDataMessageListener())
+        self.assertTrue(self.mcc.setDataMessageListener(DefaultDataMessageListener()), "\033[1;31mdata message listener linking failed\033[0m")
         
         payload = DataUtil().actuatorDataToJson(actuatorData)
         
         self.mcc.connectClient()
         
-        sleep(5)
+        sleep(2)
                 
-        self.mcc.publishMessage(resource = ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE, msg = payload, qos = qos)
+        self.assertTrue(self.mcc.publishMessage(resource = ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE, msg = payload, qos = qos), "\033[1;31mpublish message call returned false\033[0m")
         
-        sleep(delay + 5)
+        sleep(2)
         
         self.mcc.disconnectClient()
 
     @unittest.skip("Ignore for now.")
     def testSensorMsgPub(self):
         qos = 0
-        delay = self.cfg.getInteger(ConfigConst.MQTT_GATEWAY_SERVICE, ConfigConst.KEEP_ALIVE_KEY, ConfigConst.DEFAULT_KEEP_ALIVE)
         
         sensorData = SensorData()
         sensorData.setValue(22.0)
@@ -132,35 +127,33 @@ class MqttClientConnectorTest(unittest.TestCase):
         
         self.mcc.connectClient()
         
-        sleep(5)
+        sleep(3)
                 
         self.mcc.publishMessage(resource = ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE, msg = payload, qos = qos)
         
-        sleep(delay + 5)
+        sleep(3)
         
         self.mcc.disconnectClient()
 
     @unittest.skip("Ignore for now.")
     def testCDAManagementStatusSubscribe(self):
         qos = 1
-        delay = self.cfg.getInteger(ConfigConst.MQTT_GATEWAY_SERVICE, ConfigConst.KEEP_ALIVE_KEY, ConfigConst.DEFAULT_KEEP_ALIVE)
         
         self.mcc.connectClient()
         self.mcc.subscribeToTopic(resource = ResourceNameEnum.CDA_MGMT_STATUS_CMD_RESOURCE, qos = qos)
         
-        sleep(delay)
+        sleep(3)
         
         self.mcc.disconnectClient()
 
     @unittest.skip("Ignore for now.")
     def testCDAActuatorCmdSubscribe(self):
         qos = 1
-        delay = self.cfg.getInteger(ConfigConst.MQTT_GATEWAY_SERVICE, ConfigConst.KEEP_ALIVE_KEY, ConfigConst.DEFAULT_KEEP_ALIVE)
         
         self.mcc.connectClient()
         self.mcc.subscribeToTopic(resource = ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE, qos = qos)
         
-        sleep(300)
+        sleep(3)
         
         self.mcc.disconnectClient()
 
@@ -171,12 +164,11 @@ class MqttClientConnectorTest(unittest.TestCase):
         
         """
         qos = 1
-        delay = self.cfg.getInteger(ConfigConst.MQTT_GATEWAY_SERVICE, ConfigConst.KEEP_ALIVE_KEY, ConfigConst.DEFAULT_KEEP_ALIVE)
         
         self.mcc.connectClient()
         self.mcc.publishMessage(resource = ResourceNameEnum.CDA_MGMT_STATUS_MSG_RESOURCE, msg = "TEST: This is the CDA message payload.", qos = qos)
         
-        sleep(delay)
+        sleep(3)
         
         self.mcc.disconnectClient()
 

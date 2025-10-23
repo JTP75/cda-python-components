@@ -263,6 +263,7 @@ DEFAULT_QOS_KEY      = 'defaultQos'
 ENABLE_MQTT_CLIENT_KEY = 'enableMqttClient'
 ENABLE_COAP_CLIENT_KEY = 'enableCoapClient'
 ENABLE_COAP_SERVER_KEY = 'enableCoapServer'
+ENABLE_REDIS_KEY       = 'enableRedis'
 
 ENABLE_SYSTEM_PERF_KEY = 'enableSystemPerformance'
 ENABLE_SENSING_KEY     = 'enableSensing'

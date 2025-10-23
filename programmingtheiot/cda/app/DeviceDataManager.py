@@ -54,6 +54,11 @@ class DeviceDataManager(IDataMessageListener):
             key=ConfigConst.ENABLE_ACTUATION_KEY
         )
         
+        self.enableRedis = self.configUtil.getBoolean(
+            section=ConfigConst.CONSTRAINED_DEVICE,
+            key=ConfigConst.ENABLE_REDIS_KEY
+        )
+        
         self.handleTemperatureChangeOnDevice = self.configUtil.getBoolean(
             section=ConfigConst.CONSTRAINED_DEVICE,
             key=ConfigConst.HANDLE_TEMP_CHANGE_ON_DEVICE_KEY
@@ -67,17 +72,19 @@ class DeviceDataManager(IDataMessageListener):
             key=ConfigConst.TRIGGER_HVAC_TEMP_CEILING_KEY
         )
         
-        self.systemPerformanceManager = None
-        self.sensorAdapterManager = None
-        self.actuatorAdapterManager = None
+        self.systemPerformanceManager   = None
+        self.sensorAdapterManager       = None
+        self.actuatorAdapterManager     = None
         
         self.actuatorResponseCache = {}
         
-        self.mqttClient = None
-        self.coapClient = None
-        self.coapServer = None
+        self.mqttClient     = None
+        self.coapClient     = None
+        self.coapServer     = None
+        self.redisClient    = None
         
-        self.redisClient = RedisPersistenceAdapter()
+        if self.enableRedis:
+            self.redisClient = RedisPersistenceAdapter()
         
         if self.enableSystemPerformanceData:
             self.systemPerformanceManager = SystemPerformanceManager()
@@ -190,7 +197,8 @@ class DeviceDataManager(IDataMessageListener):
         logging.debug(f"Handling sensor message: {data}")
         if data:
             logging.debug("Processing sensor data...")
-            self.redisClient.storeSensorData(ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE, data)
+            if self.redisClient:
+                self.redisClient.storeSensorData(ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE, data)
             self._handleSensorDataAnalysis(data=data)
             return True
         else:

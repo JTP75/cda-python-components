@@ -43,6 +43,7 @@ enableSenseHAT   = False
 enableMqttClient = True
 enableCoapServer = False
 enableCoapClient = False
+enableRedis      = False
 enableSystemPerformance = True
 enableSensing    = True
 enableActuation  = True

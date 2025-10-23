@@ -122,19 +122,22 @@ f"""
             return False
         
     def onConnect(self, client, userdata, flags, rc):
-        logging.debug(f"Client connected (id={client._client_id})")
+        logging.debug(f"Client connected to broker: {str(client)}")
         
     def onDisconnect(self, client, userdata, rc):
-        logging.debug(f"Client disconnected (id={client._client_id})")
+        logging.debug(f"Client disconnected from broker: {str(client)}")
         
     def onMessage(self, client, userdata, msg):
-        logging.debug(f"Someone posted a message: {msg}")
+        if msg.payload:
+            logging.debug(f"Message received with payload: {str(msg.payload.decode('utf-8'))}")
+        else:
+            logging.debug(f"Message received with no payload: {str(msg)}")
             
     def onPublish(self, client, userdata, mid):
-        logging.debug("Someone published!")
+        logging.debug(f"Message published: {str(client)}")
     
     def onSubscribe(self, client, userdata, mid, granted_qos):
-        logging.debug("Someone subscribed!")
+        logging.debug(f"Client subscribed: {str(client)}")
     
     def onActuatorCommandMessage(self, client, userdata, msg):
         """

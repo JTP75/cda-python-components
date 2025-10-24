@@ -45,19 +45,19 @@ class MqttClientConnectorTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @unittest.skip("Ignore for now.")
+    # @unittest.skip("Ignore for now.")
     def testConnectAndDisconnect(self):       
         self.mcc.connectClient()
         sleep(2)
         self.assertTrue(self.mcc.connected)
         
-        sleep(2)
+        sleep(30)
                 
         self.mcc.disconnectClient()
         sleep(2)
         self.assertFalse(self.mcc.connected)
 
-    @unittest.skip("Ignore for now.")
+    # @unittest.skip("Ignore for now.")
     def testConnectAndCDAManagementStatusPubSub(self):
         qos = 1
         

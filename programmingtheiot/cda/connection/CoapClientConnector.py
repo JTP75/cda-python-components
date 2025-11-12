@@ -134,6 +134,34 @@ class CoapClientConnector(IRequestResponseClient):
         payload: str = None, 
         timeout: int = IRequestResponseClient.DEFAULT_TIMEOUT
     ) -> bool:
+        
+        if resource or name:
+            path = self._createResourcePath(resource, name)
+            logging.info(f"POST {path}")
+            
+            request = self.coapClient.mk_request(defines.Codes.POST, path=path)
+            request.token = generate_random_token(2)
+            request.payload = payload
+            
+            try:
+                if enableCON:
+                    self.coapClient.send_request(request=request, timeout=timeout, \
+                        callback=self._onPostResponse)
+                
+                else:
+                    request.type = defines.Types["NON"]
+                    response = self.coapClient.send_request(request=request, timeout=timeout)
+                    self._onPostResponse(response=response)
+                    
+            except Exception as e:
+                logging.error("CoAP server response failed")
+                raise e
+            
+            return True
+            
+        else:
+            logging.warning(f"POST: No path or list provided")
+        
         return False
 
     def sendPutRequest(
@@ -250,7 +278,11 @@ class CoapClientConnector(IRequestResponseClient):
         
     
     def _onPostResponse(self, response):
-        pass
+        if not response: 
+            logging.warning("Invalid POST response")
+            return
+        
+        logging.info(f"Received POST response: {response.payload}")
     
     def _onPutResponse(self, response):
         if not response: 

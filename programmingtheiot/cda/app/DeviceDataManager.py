@@ -60,6 +60,10 @@ class DeviceDataManager(IDataMessageListener):
             section=ConfigConst.CONSTRAINED_DEVICE,
             key=ConfigConst.ENABLE_MQTT_CLIENT_KEY
         )
+        self.enableCoapClient = self.configUtil.getBoolean(
+            section=ConfigConst.CONSTRAINED_DEVICE,
+            key=ConfigConst.ENABLE_COAP_CLIENT_KEY
+        )
         self.enableRedis = self.configUtil.getBoolean(
             section=ConfigConst.CONSTRAINED_DEVICE,
             key=ConfigConst.ENABLE_REDIS_KEY
@@ -93,6 +97,9 @@ class DeviceDataManager(IDataMessageListener):
         if self.enableMqttClient:
             self.mqttClient = MqttClientConnector()
             self.mqttClient.setDataMessageListener(self)
+        if self.enableCoapClient:
+            self.coapClient = CoapClientConnector()
+            self.coapClient.setDataMessageListener(self)
         if self.enableRedis:
             self.redisClient = RedisPersistenceAdapter()
         

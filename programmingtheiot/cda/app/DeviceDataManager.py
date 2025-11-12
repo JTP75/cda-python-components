@@ -33,6 +33,8 @@ from programmingtheiot.data.ActuatorData import ActuatorData
 from programmingtheiot.data.SensorData import SensorData
 from programmingtheiot.data.SystemPerformanceData import SystemPerformanceData
 
+logging.basicConfig(format = '%(asctime)s:%(filename)s:%(levelname)s:%(message)s', level = logging.DEBUG)
+
 class DeviceDataManager(IDataMessageListener):
     """
     TODO add desc pls

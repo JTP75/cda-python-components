@@ -29,6 +29,8 @@ from programmingtheiot.common.ResourceNameEnum import ResourceNameEnum
 from programmingtheiot.common.IDataMessageListener import IDataMessageListener
 from programmingtheiot.cda.connection.IRequestResponseClient import IRequestResponseClient
 
+logging.basicConfig(format = '%(asctime)s:%(filename)s:%(levelname)s:%(message)s', level = logging.DEBUG)
+
 class CoapClientConnector(IRequestResponseClient):
     """
     Shell representation of class for student implementation.
@@ -102,15 +104,20 @@ class CoapClientConnector(IRequestResponseClient):
             request = self.coapClient.mk_request(defines.Codes.GET, path=path)
             request.token = generate_random_token(2)
             
-            if not enableCON: request.type = defines.Types["NON"]
-            
             try:
-                response = self.coapClient.send_request(request=request, timeout=timeout)
+                if enableCON:
+                    self.coapClient.send_request(request=request, timeout=timeout, \
+                        callback=lambda resp: self._onGetResponse(resp, path))
+                
+                else:
+                    request.type = defines.Types["NON"]
+                    response = self.coapClient.send_request(request=request, timeout=timeout)
+                    self._onGetResponse(response=response, resourcePath=path)
+                    
             except Exception as e:
                 logging.error("CoAP server response failed")
                 raise e
             
-            self._onGetResponse(response=response, resourcePath=path)
             return True
             
         else:

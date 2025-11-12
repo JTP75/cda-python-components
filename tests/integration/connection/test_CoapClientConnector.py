@@ -79,7 +79,7 @@ class CoapClientConnectorTest(unittest.TestCase):
 	# @unittest.skip("Ignore for now.")
 	def testGetActuatorCommandNon(self):
 		"""
-		Comment the annotation to test CON GET
+		Comment the annotation to test NON GET
 		"""
 		rslt = self.coapClient.sendGetRequest( \
 			resource = ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE, enableCON = False, timeout = 5)

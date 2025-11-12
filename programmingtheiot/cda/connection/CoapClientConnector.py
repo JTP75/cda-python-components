@@ -101,6 +101,7 @@ class CoapClientConnector(IRequestResponseClient):
         if resource or name:
             path = self._createResourcePath(resource, name)
             logging.info(f"GET {path}")
+            
             request = self.coapClient.mk_request(defines.Codes.GET, path=path)
             request.token = generate_random_token(2)
             
@@ -121,7 +122,7 @@ class CoapClientConnector(IRequestResponseClient):
             return True
             
         else:
-            logging.warning(f"No path or list provided")
+            logging.warning(f"GET: No path or list provided")
         
         return False
 
@@ -143,6 +144,34 @@ class CoapClientConnector(IRequestResponseClient):
         payload: str = None, 
         timeout: int = IRequestResponseClient.DEFAULT_TIMEOUT
     ) -> bool:
+        
+        if resource or name:
+            path = self._createResourcePath(resource, name)
+            logging.info(f"PUT {path}")
+            
+            request = self.coapClient.mk_request(defines.Codes.PUT, path=path)
+            request.token = generate_random_token(2)
+            request.payload = payload
+            
+            try:
+                if enableCON:
+                    self.coapClient.send_request(request=request, timeout=timeout, \
+                        callback=self._onPutResponse)
+                
+                else:
+                    request.type = defines.Types["NON"]
+                    response = self.coapClient.send_request(request=request, timeout=timeout)
+                    self._onPutResponse(response=response)
+                    
+            except Exception as e:
+                logging.error("CoAP server response failed")
+                raise e
+            
+            return True
+            
+        else:
+            logging.warning(f"PUT: No path or list provided")
+        
         return False
 
     def setDataMessageListener(self, listener: IDataMessageListener = None) -> bool:
@@ -224,4 +253,8 @@ class CoapClientConnector(IRequestResponseClient):
         pass
     
     def _onPutResponse(self, response):
-        pass
+        if not response: 
+            logging.warning("Invalid PUT response")
+            return
+        
+        logging.info(f"Received PUT response: {response.payload}")

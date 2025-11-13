@@ -37,13 +37,45 @@ class CoapClientConnector(IRequestResponseClient):
     
     """
     
+    class HandleActuatorEvent:
+        
+        def __init__(
+            self,
+            listener: IDataMessageListener = None,
+            resource: ResourceNameEnum = ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE,
+            requests: dict = None
+        ):
+            self.listener = listener
+            self.resource = resource
+            self.observeRequests = requests		
+            if not self.resource:
+                self.resource = ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE
+                
+        def handle(self, response):
+            if response:
+                if self.observeRequests is not None:
+                    self.observeRequests[self.resource] = response
+                
+                logging.info(f"Received actuator cmd response to {self.resource}: {response.payload}")
+                
+                if self.listener:
+                    try:
+                        data = DataUtil().jsonToActuatorData(jsonData=response.payload)
+                        # NOTE instructions say to use `handleActuatorCommandMessage`
+                        # im assuming they meant `handleActuatorCommandResponse`
+                        # doesnt matter for now since neither is implemented
+                        self.listener.handleActuatorCommandResponse(data)
+                        
+                    except:
+                        logging.warning(f"Failed to deserialize actuator data. {response.payload}")
+    
     def __init__(self, dataMsgListener: IDataMessageListener = None):
         
         config = ConfigUtil()
         self.dataMsgListener = dataMsgListener
         self.enableConfirmedMsgs = False
         self.coapClient = None
-        self.observeRequests = { }
+        self.observeRequests = {}
         
         self.host = config.getProperty( \
             ConfigConst.COAP_GATEWAY_SERVICE, ConfigConst.HOST_KEY, ConfigConst.DEFAULT_HOST)
@@ -235,11 +267,67 @@ class CoapClientConnector(IRequestResponseClient):
             return True
         return False
 
-    def startObserver(self, resource: ResourceNameEnum = None, name: str = None, ttl: int = IRequestResponseClient.DEFAULT_TTL) -> bool:
+    def startObserver(self, resource: ResourceNameEnum = None, \
+        name: str = None, ttl: int = IRequestResponseClient.DEFAULT_TTL
+    ) -> bool:
+        
+        if resource or name:
+            path = self._createResourcePath(resource, name)
+            
+            if resource in self.observeRequests:
+                logging.warning(f"Already observing resource {resource}")
+                return False
+            logging.info(f"Start observing {path}")
+            
+            handler = self.HandleActuatorEvent(
+                listener=self.dataMsgListener,
+                resource=resource,
+                requests=self.observeRequests
+            )
+            
+            try:
+                self.coapClient.observe(path=path, callback=handler.handle)
+                return True
+            
+            except Exception as e:
+                logging.warning(f"Failed to observe {path}")
+            
+        else:
+            logging.warning(f"No path or list provided to observe")
+            
         return False
 
     def stopObserver(self, resource: ResourceNameEnum = None, \
-        name: str = None, timeout: int = IRequestResponseClient.DEFAULT_TIMEOUT) -> bool:
+        name: str = None, timeout: int = IRequestResponseClient.DEFAULT_TIMEOUT
+    ) -> bool:
+        
+        if resource or name:
+            path = self._createResourcePath(resource, name)
+            
+            if resource not in self.observeRequests:
+                logging.warning(f"Not observing resource {resource}")
+                return False
+            
+            response = self.observeRequests[resource]
+            if response:
+                logging.info(f"Stop observing {resource}")
+                del self.observeRequests[resource]
+                
+            else:
+                logging.info(f"No response from {resource}. Stopping anyway")
+                response = None
+            
+            try:
+                self.coapClient.cancel_observing(response=response, send_rst=True)
+                logging.info(f"Cancelled observe for {resource}")
+                return True
+            
+            except Exception as e:
+                logging.error(f"Failed to stop observing {resource}: {e}")
+            
+        else:
+            logging.warning(f"No path or list provided to stop observe")
+            
         return False
     
     def _initClient(self):
@@ -307,7 +395,6 @@ class CoapClientConnector(IRequestResponseClient):
         else:
             logging.info(f"Response data received. Payload {response.payload}")
         
-    
     def _onPostResponse(self, response):
         if not response: 
             logging.warning("Invalid POST response")

@@ -151,20 +151,29 @@ class CoapClientConnectorTest(unittest.TestCase):
 			resource = ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE, enableCON = False, payload = jsonData, timeout = 5)
 		assert(rslt)
 
-	@unittest.skip("Ignore for now.")
+	# @unittest.skip("Ignore for now.")
+	def testActuatorCommandObserveStartStop(self):
+		"""
+		Comment the annotation to test Observe start/stop
+		"""
+		assert(self._startObserver())
+		sleep(2)
+		assert(self._stopObserver())
+
+	# @unittest.skip("Ignore for now.")
 	def testActuatorCommandObserve(self):
 		"""
 		Comment the annotation to test Observe
 		"""
-		self._startObserver()
-		sleep(30)
-		self._stopObserver()
+		assert(self._startObserver())
+		sleep(10)
+		assert(self._stopObserver())
 		
-	def _startObserver(self):
-		self.coapClient.startObserver(resource = ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE)
+	def _startObserver(self) -> bool:
+		return self.coapClient.startObserver(resource = ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE)
 
-	def _stopObserver(self):
-		self.coapClient.stopObserver(resource = ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE)
+	def _stopObserver(self) -> bool:
+		return self.coapClient.stopObserver(resource = ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE)
 
 if __name__ == "__main__":
 	unittest.main()

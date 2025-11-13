@@ -40,7 +40,7 @@ class DeviceDataManager(IDataMessageListener):
     TODO add desc pls
     """
     
-    def __init__(self):
+    def __init__(self, noComms: bool = False):
         self.configUtil = ConfigUtil()
         
         # data collection config
@@ -61,15 +61,15 @@ class DeviceDataManager(IDataMessageListener):
         self.enableMqttClient = self.configUtil.getBoolean(
             section=ConfigConst.CONSTRAINED_DEVICE,
             key=ConfigConst.ENABLE_MQTT_CLIENT_KEY
-        )
+        ) and not noComms
         self.enableCoapClient = self.configUtil.getBoolean(
             section=ConfigConst.CONSTRAINED_DEVICE,
             key=ConfigConst.ENABLE_COAP_CLIENT_KEY
-        )
+        ) and not noComms
         self.enableRedis = self.configUtil.getBoolean(
             section=ConfigConst.CONSTRAINED_DEVICE,
             key=ConfigConst.ENABLE_REDIS_KEY
-        )
+        ) and not noComms
         
         # data range config
         self.handleTemperatureChangeOnDevice = self.configUtil.getBoolean(
@@ -158,6 +158,7 @@ class DeviceDataManager(IDataMessageListener):
         
         if data:
             logging.debug(f"Processing actuator command...")
+            # TODO something here
             return self.actuatorAdapterManager.sendActuatorCommand(data)
         else:
             logging.warning("Incoming actuator command is invalid (None). Ignoring.")

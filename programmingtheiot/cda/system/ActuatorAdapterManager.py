@@ -99,7 +99,9 @@ class ActuatorAdapterManager(object):
                 else:
                     logging.warning(f"No valid actuator type. Ignoring actuation for type: {data.getTypeID()}")
                     
-                # TODO dml callback for DeviceDataManager will go here
+                if self.dataMessageListener:
+                    self.dataMessageListener.handleActuatorCommandResponse(data)
+                    
             else:
                 logging.warning(f"Location ID doesn't match. Ignoring actuation: (me) {self.locationID} != (you) {data.getLocationID()}")
         else:

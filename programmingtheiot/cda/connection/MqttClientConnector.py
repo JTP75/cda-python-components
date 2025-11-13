@@ -134,7 +134,8 @@ f"""
             logging.debug(f"Message received with no payload: {str(msg)}")
             
     def onPublish(self, client, userdata, mid):
-        logging.debug(f"Message published: {str(client)}")
+        # logging.debug(f"Message published: {str(client)}")
+        pass
     
     def onSubscribe(self, client, userdata, mid, granted_qos):
         logging.debug(f"Client subscribed: {str(client)}")
@@ -158,10 +159,10 @@ f"""
         
         # validations
         if not resource:
-            logging.warning("No topic specified to publish to.")
+            # logging.warning("No topic specified to publish to.")
             return False
         if not msg:
-            logging.warning(f"Cannot publish empty message to topic {resource}")
+            # logging.warning(f"Cannot publish empty message to topic {resource}")
             return False
         if not 0 <= qos <= 2:
             qos = ConfigConst.DEFAULT_QOS
@@ -172,7 +173,7 @@ f"""
             info.wait_for_publish()
             return True
         except Exception as e:
-            logging.error(f"Publish failed: {str(e)}")
+            # logging.error(f"Publish failed: {str(e)}")
             return False
     
     def subscribeToTopic(self, resource: ResourceNameEnum = None, callback = None, qos: int = ConfigConst.DEFAULT_QOS) -> bool:

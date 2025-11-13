@@ -12,6 +12,7 @@
 
 import logging
 import paho.mqtt.client as mqttClient
+import ssl
 
 import programmingtheiot.common.ConfigConst as ConfigConst
 
@@ -78,6 +79,17 @@ class MqttClientConnector(IPubSubClient):
             clientID if clientID else "CDA_MQTT_CLIENT_ID_001"
         )
         
+        self.enableCrypt = self.config.getBoolean(
+            ConfigConst.MQTT_GATEWAY_SERVICE,
+            ConfigConst.ENABLE_CRYPT_KEY
+        )
+        
+        self.caFileName = self.config.getProperty(
+            ConfigConst.MQTT_GATEWAY_SERVICE,
+            ConfigConst.CERT_FILE_KEY,
+            ConfigConst.DEFAULT_CRED_FILE_NAME
+        )
+        
         self.mqttClient = None
         
         logging.info(
@@ -86,6 +98,8 @@ f"""
     MQTT Broker Host:   {self.host}
     MQTT Broker Port:   {self.port}
     MQTT Keep Alive:    {self.keepAlive}                     
+    MQTT Encryption:    {self.enableCrypt}
+    MQTT CA File Name:  {self.caFileName}     
 """
         )
         
@@ -94,6 +108,20 @@ f"""
     def connectClient(self, cleanSession: bool = True) -> bool:
         if not self.mqttClient:
             self.mqttClient = mqttClient.Client(client_id=self.clientID, clean_session=cleanSession)
+            
+            try:
+                if self.enableCrypt:
+                    logging.info("Enabling TLS Encryption...")
+                    self.port = self.config.getInteger(
+                        ConfigConst.MQTT_GATEWAY_SERVICE,
+                        ConfigConst.SECURE_PORT_KEY,
+                        ConfigConst.DEFAULT_MQTT_SECURE_PORT
+                    )
+                    self.mqttClient.tls_set(self.caFileName, tls_version=ssl.PROTOCOL_TLS_CLIENT)
+                    
+            except Exception as e:
+                logging.error("TLS Encryption failed.")
+                raise e
             
             self.mqttClient.on_connect = self.onConnect
             self.mqttClient.on_disconnect = self.onDisconnect

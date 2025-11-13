@@ -44,6 +44,12 @@ class MqttClientConnectorTest(unittest.TestCase):
 
     def tearDown(self):
         pass
+    
+    # SUB
+    # 
+    # mosquitto_sub -h localhost -p 1883 -t PIOT/ConstrainedDevice/SensorMsg
+    # mosquitto_sub -h localhost -p 8883 -t PIOT/ConstrainedDevice/SensorMsg --cafile ./cert/server.crt --insecure
+    #
 
     # @unittest.skip("Ignore for now.")
     def testConnectAndDisconnect(self):       
@@ -114,7 +120,7 @@ class MqttClientConnectorTest(unittest.TestCase):
         
         self.mcc.disconnectClient()
 
-    @unittest.skip("Ignore for now.")
+    # @unittest.skip("Ignore for now.")
     def testSensorMsgPub(self):
         qos = 0
         

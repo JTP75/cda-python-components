@@ -17,6 +17,7 @@ import ssl
 import programmingtheiot.common.ConfigConst as ConfigConst
 
 from programmingtheiot.common.ConfigUtil import ConfigUtil
+from programmingtheiot.data.DataUtil import DataUtil
 from programmingtheiot.common.IDataMessageListener import IDataMessageListener
 from programmingtheiot.common.ResourceNameEnum import ResourceNameEnum
 
@@ -150,10 +151,18 @@ f"""
             return False
         
     def onConnect(self, client, userdata, flags, rc):
-        logging.debug(f"Client connected to broker: {str(client)}")
+        logging.debug(f"[Callback] Client connected to broker: {str(client)}, code={rc}")
+        self.mqttClient.subscribe(
+            topic=ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE.value,
+            qos=self.defaultQos
+        )
+        self.mqttClient.message_callback_add(
+            sub=ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE.value,
+            callback=self.onActuatorCommandMessage
+        )
         
     def onDisconnect(self, client, userdata, rc):
-        logging.debug(f"Client disconnected from broker: {str(client)}")
+        logging.debug(f"[Callback] Client disconnected from broker: {str(client)}, code={rc}")
         
     def onMessage(self, client, userdata, msg):
         if msg.payload:
@@ -181,7 +190,13 @@ f"""
         @param userdata The user reference context.
         @param msg The message context, including the embedded payload.
         """
-        pass
+        logging.info(f"[Callback] Received actuator command message to topic {msg.topic}")
+        if self.dataMessageListener:
+            try: 
+                actuatorData = DataUtil().jsonToActuatorData(msg.payload.decode("utf-8"))
+                self.dataMessageListener.handleActuatorCommandMessage(actuatorData)
+            except:
+                logging.exception("Failed to deserialize payload: ")
     
     def publishMessage(self, resource: ResourceNameEnum = None, msg: str = None, qos: int = ConfigConst.DEFAULT_QOS) -> bool:
         
@@ -198,7 +213,8 @@ f"""
         # publish
         try:
             info = self.mqttClient.publish(topic=resource.value, payload=msg, qos=qos)
-            info.wait_for_publish()
+            # TODO start a thread to get if pub succeeded
+            # info.wait_for_publish()
             return True
         except Exception as e:
             # logging.error(f"Publish failed: {str(e)}")

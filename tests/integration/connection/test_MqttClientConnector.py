@@ -141,7 +141,7 @@ class MqttClientConnectorTest(unittest.TestCase):
         
         self.mcc.disconnectClient()
 
-    @unittest.skip("Ignore for now.")
+    # @unittest.skip("Ignore for now.")
     def testCDAManagementStatusSubscribe(self):
         qos = 1
         
@@ -152,7 +152,7 @@ class MqttClientConnectorTest(unittest.TestCase):
         
         self.mcc.disconnectClient()
 
-    @unittest.skip("Ignore for now.")
+    # @unittest.skip("Ignore for now.")
     def testCDAActuatorCmdSubscribe(self):
         qos = 1
         
@@ -163,7 +163,7 @@ class MqttClientConnectorTest(unittest.TestCase):
         
         self.mcc.disconnectClient()
 
-    @unittest.skip("Ignore for now.")
+    # @unittest.skip("Ignore for now.")
     def testCDAManagementStatusPublish(self):
         """
         Uncomment this test when integration between the GDA and CDA using MQTT.

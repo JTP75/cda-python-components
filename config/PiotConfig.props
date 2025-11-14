@@ -34,11 +34,20 @@ enableAuth     = False
 enableCrypt    = False
 
 #
+# Persistence client configuration information
+#
+[Data.GatewayService]
+credFile = ./cred/PiotPersistenceCred.props
+host = localhost
+port = 6379
+enableCrypt = False
+
+#
 # CDA specific configuration information
 #
 [ConstrainedDevice]
 deviceLocationID = constraineddevice001
-enableEmulator   = False
+enableEmulator   = True
 enableSenseHAT   = False
 enableMqttClient = True
 enableCoapServer = False
@@ -52,15 +61,6 @@ pollCycleSecs    = 5
 testGdaDataPath  = /tmp/gda-data
 testCdaDataPath  = /tmp/cda-data
 testEmptyApp     = False
-
-#
-# Persistence client configuration information
-#
-[Data.GatewayService]
-credFile = ./cred/PiotPersistenceCred.props
-host = localhost
-port = 6379
-enableCrypt = False
 
 # configurable limits for sensor simulation
 humiditySimFloor   =   35.0

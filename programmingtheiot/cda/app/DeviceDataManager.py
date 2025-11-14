@@ -214,13 +214,22 @@ class DeviceDataManager(IDataMessageListener):
         @param data The incoming SensorData message.
         @return boolean
         """
-        logging.debug(f"Handling sensor message: {data}")
+        logging.info(f"Handling sensor message: {data}")
         if data:
             logging.debug("Processing sensor data...")
+            
             if self.redisClient:
                 self.redisClient.storeSensorData(ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE, data)
             self._handleSensorDataAnalysis(data=data)
+            
+            jsonData = DataUtil().sensorDataToJson(data)
+            self._handleUpstreamTransmission(
+                resourceName=ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE, 
+                msg=jsonData
+            )
+            
             return True
+        
         else:
             logging.warning("Incoming sensor data is invalid (None). Ignoring.")
             return False
@@ -339,4 +348,15 @@ class DeviceDataManager(IDataMessageListener):
         1) Check connection: Is there a client connection configured (and valid) to a remote MQTT or CoAP server?
         2) Act on msg: If # 1 is true, send message upstream using one (or both) client connections.
         """
-        logging.warning("Not implemented yet.")
+        logging.info(f"Handling upstream transmission: {resourceName}")
+        if self.mqttClient:
+            if self.mqttClient.publishMessage(resource=resourceName, msg=msg):
+                logging.debug("Published to MQTT")
+            else:
+                logging.error("Failed to publish to MQTT")
+        if self.coapClient:
+            if self.coapClient.sendPutRequest(resource=resourceName, payload=msg):
+                logging.debug("PUT to CoAP")
+            else:
+                logging.error("Failed to PUT to CoAP")
+        

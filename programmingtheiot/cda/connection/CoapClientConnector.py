@@ -10,7 +10,7 @@
 # Programming the Internet of Things project.
 # 
 
-import logging
+# import logging
 import socket
 
 from coapthon import defines
@@ -29,7 +29,7 @@ from programmingtheiot.common.ResourceNameEnum import ResourceNameEnum
 from programmingtheiot.common.IDataMessageListener import IDataMessageListener
 from programmingtheiot.cda.connection.IRequestResponseClient import IRequestResponseClient
 
-logging.basicConfig(format = '%(asctime)s:%(filename)s:%(levelname)s:%(message)s', level = logging.DEBUG)
+# logging.basicConfig(format = '%(asctime)s:%(filename)s:%(levelname)s:%(message)s', level = logging.DEBUG)
 
 class CoapClientConnector(IRequestResponseClient):
     """
@@ -56,7 +56,7 @@ class CoapClientConnector(IRequestResponseClient):
                 if self.observeRequests is not None:
                     self.observeRequests[self.resource] = response
                 
-                logging.info(f"Received actuator cmd response to {self.resource}: {response.payload}")
+                # logging.info(f"Received actuator cmd response to {self.resource}: {response.payload}")
                 
                 if self.listener:
                     try:
@@ -67,7 +67,8 @@ class CoapClientConnector(IRequestResponseClient):
                         self.listener.handleActuatorCommandResponse(data)
                         
                     except:
-                        logging.warning(f"Failed to deserialize actuator data. {response.payload}")
+                        # logging.warning(f"Failed to deserialize actuator data. {response.payload}")
+                        pass
     
     def __init__(self, dataMsgListener: IDataMessageListener = None):
         
@@ -89,26 +90,27 @@ class CoapClientConnector(IRequestResponseClient):
             if tmp:
                 self.host = tmp
                 self.uriPath = f"coap://{self.host}:{self.port}/"
-                logging.info(f"CoAP client will connect to {self.host}")
+                # logging.info(f"CoAP client will connect to {self.host}")
                 self._initClient()
             else:
-                logging.error(f"Could not resolve host {self.host}")
+                # logging.error(f"Could not resolve host {self.host}")
                 raise
             
         except socket.gaierror:
-            logging.error(f"Failed to resolve host {self.host}")
+            # logging.error(f"Failed to resolve host {self.host}")
+                        pass
     
     def sendDiscoveryRequest(self, timeout: int = IRequestResponseClient.DEFAULT_TIMEOUT) -> bool:
         
         path = self._createResourcePath(None, '.well-known/core')
-        logging.info(f"DISCOVER {path}")
+        # logging.info(f"DISCOVER {path}")
         
         request = self.coapClient.mk_request(defines.Codes.GET, path=path)
         request.token = generate_random_token(2)
         try:
             self.coapClient.send_request(request=request, timeout=timeout, callback=self._onDiscoveryResponse)
         except Exception as e:
-            logging.error("CoAP server response failed")
+            # logging.error("CoAP server response failed")
             raise e
         
         return True
@@ -123,7 +125,7 @@ class CoapClientConnector(IRequestResponseClient):
         
         if resource or name:
             path = self._createResourcePath(resource, name)
-            logging.info(f"DELETE {path}")
+            # logging.info(f"DELETE {path}")
             
             request = self.coapClient.mk_request(defines.Codes.DELETE, path=path)
             request.token = generate_random_token(2)
@@ -139,13 +141,14 @@ class CoapClientConnector(IRequestResponseClient):
                     self._onDeleteResponse(response=response)
                     
             except Exception as e:
-                logging.error("CoAP server response failed")
+                # logging.error("CoAP server response failed")
                 raise e
             
             return True
             
         else:
-            logging.warning(f"DELETE: No path or list provided")
+            # logging.warning(f"DELETE: No path or list provided")
+            pass
         
         return False
 
@@ -159,7 +162,7 @@ class CoapClientConnector(IRequestResponseClient):
         
         if resource or name:
             path = self._createResourcePath(resource, name)
-            logging.info(f"GET {path}")
+            # logging.info(f"GET {path}")
             
             request = self.coapClient.mk_request(defines.Codes.GET, path=path)
             request.token = generate_random_token(2)
@@ -175,13 +178,14 @@ class CoapClientConnector(IRequestResponseClient):
                     self._onGetResponse(response=response, resourcePath=path)
                     
             except Exception as e:
-                logging.error("CoAP server response failed")
+                # logging.error("CoAP server response failed")
                 raise e
             
             return True
             
         else:
-            logging.warning(f"GET: No path or list provided")
+            # logging.warning(f"GET: No path or list provided")
+            pass
         
         return False
 
@@ -196,7 +200,7 @@ class CoapClientConnector(IRequestResponseClient):
         
         if resource or name:
             path = self._createResourcePath(resource, name)
-            logging.info(f"POST {path}")
+            # logging.info(f"POST {path}")
             
             request = self.coapClient.mk_request(defines.Codes.POST, path=path)
             request.token = generate_random_token(2)
@@ -213,13 +217,14 @@ class CoapClientConnector(IRequestResponseClient):
                     self._onPostResponse(response=response)
                     
             except Exception as e:
-                logging.error("CoAP server response failed")
+                # logging.error("CoAP server response failed")
                 raise e
             
             return True
             
         else:
-            logging.warning(f"POST: No path or list provided")
+            # logging.warning(f"POST: No path or list provided")
+            pass
         
         return False
 
@@ -234,7 +239,7 @@ class CoapClientConnector(IRequestResponseClient):
         
         if resource or name:
             path = self._createResourcePath(resource, name)
-            logging.info(f"PUT {path}")
+            # logging.info(f"PUT {path}")
             
             request = self.coapClient.mk_request(defines.Codes.PUT, path=path)
             request.token = generate_random_token(2)
@@ -251,13 +256,14 @@ class CoapClientConnector(IRequestResponseClient):
                     self._onPutResponse(response=response)
                     
             except Exception as e:
-                logging.error("CoAP server response failed")
+                # logging.error("CoAP server response failed")
                 raise e
             
             return True
             
         else:
-            logging.warning(f"PUT: No path or list provided")
+            # logging.warning(f"PUT: No path or list provided")
+            pass
         
         return False
 
@@ -275,9 +281,9 @@ class CoapClientConnector(IRequestResponseClient):
             path = self._createResourcePath(resource, name)
             
             if resource in self.observeRequests:
-                logging.warning(f"Already observing resource {resource}")
+                # logging.warning(f"Already observing resource {resource}")
                 return False
-            logging.info(f"Start observing {path}")
+            # logging.info(f"Start observing {path}")
             
             handler = self.HandleActuatorEvent(
                 listener=self.dataMsgListener,
@@ -290,10 +296,12 @@ class CoapClientConnector(IRequestResponseClient):
                 return True
             
             except Exception as e:
-                logging.warning(f"Failed to observe {path}")
+                # logging.warning(f"Failed to observe {path}")
+                pass
             
         else:
-            logging.warning(f"No path or list provided to observe")
+            # logging.warning(f"No path or list provided to observe")
+            pass
             
         return False
 
@@ -305,28 +313,30 @@ class CoapClientConnector(IRequestResponseClient):
             path = self._createResourcePath(resource, name)
             
             if resource not in self.observeRequests:
-                logging.warning(f"Not observing resource {resource}")
+                # logging.warning(f"Not observing resource {resource}")
                 return False
             
             response = self.observeRequests[resource]
             if response:
-                logging.info(f"Stop observing {resource}")
+                # logging.info(f"Stop observing {resource}")
                 del self.observeRequests[resource]
                 
             else:
-                logging.info(f"No response from {resource}. Stopping anyway")
+                # logging.info(f"No response from {resource}. Stopping anyway")
                 response = None
             
             try:
                 self.coapClient.cancel_observing(response=response, send_rst=True)
-                logging.info(f"Cancelled observe for {resource}")
+                # logging.info(f"Cancelled observe for {resource}")
                 return True
             
             except Exception as e:
-                logging.error(f"Failed to stop observing {resource}: {e}")
+                # logging.error(f"Failed to stop observing {resource}: {e}")
+                pass
             
         else:
-            logging.warning(f"No path or list provided to stop observe")
+            # logging.warning(f"No path or list provided to stop observe")
+            pass
             
         return False
     
@@ -334,9 +344,9 @@ class CoapClientConnector(IRequestResponseClient):
         
         try:
             self.coapClient = HelperClient(server=(self.host, self.port))
-            logging.info(f"Client created. Will invoke resources at {self.uriPath}")
+            # logging.info(f"Client created. Will invoke resources at {self.uriPath}")
         except Exception as e:
-            logging.error(f"Failed to create CoAP client to {self.uriPath}")
+            # logging.error(f"Failed to create CoAP client to {self.uriPath}")
             raise e # just throw
         
     def _createResourcePath(self, resource: ResourceNameEnum, name: str = None) -> str:
@@ -355,23 +365,23 @@ class CoapClientConnector(IRequestResponseClient):
     
     def _onDiscoveryResponse(self, response):
         if not response:
-            logging.warning("Invalid DISCOVERY response")
+            # logging.warning("Invalid DISCOVERY response")
             return
-        logging.info(f"DISCOVERY response: {response.payload}")
+        # logging.info(f"DISCOVERY response: {response.payload}")
         
     def _onDeleteResponse(self, response):
         if not response: 
-            logging.warning("Invalid DELETE response")
+            # logging.warning("Invalid DELETE response")
             return
         
-        logging.info(f"Received DELETE response: {response.payload}")
+        # logging.info(f"Received DELETE response: {response.payload}")
     
     def _onGetResponse(self, response, resourcePath: str = None):
         if not response: 
-            logging.warning("Invalid GET response")
+            # logging.warning("Invalid GET response")
             return
         
-        logging.info("Received GET response")
+        # logging.info("Received GET response")
         
         locationPath = resourcePath.split('/')
 		
@@ -379,7 +389,7 @@ class CoapClientConnector(IRequestResponseClient):
             dataType = locationPath[2]
 
             if dataType == ConfigConst.ACTUATOR_CMD:
-                logging.info(f"ActuatorData received: {response.payload}")
+                # logging.info(f"ActuatorData received: {response.payload}")
 
                 try:
                     ad = DataUtil().jsonToActuatorData(response.payload)
@@ -387,24 +397,26 @@ class CoapClientConnector(IRequestResponseClient):
                         self.dataMsgListener.handleActuatorCommandMessage(ad)
                         
                 except:
-                    logging.warning(f"Failed to decode actuator data. Ignoring {response.payload}")
+                    # logging.warning(f"Failed to decode actuator data. Ignoring {response.payload}")
                     return
             else:
-                logging.info(f"Response data received. Payload {response.payload}")
+                # logging.info(f"Response data received. Payload {response.payload}")
+                pass
 
         else:
-            logging.info(f"Response data received. Payload {response.payload}")
+            # logging.info(f"Response data received. Payload {response.payload}")
+            pass
         
     def _onPostResponse(self, response):
         if not response: 
-            logging.warning("Invalid POST response")
+            # logging.warning("Invalid POST response")
             return
         
-        logging.info(f"Received POST response: {response.payload}")
+        # logging.info(f"Received POST response: {response.payload}")
     
     def _onPutResponse(self, response):
         if not response: 
-            logging.warning("Invalid PUT response")
+            # logging.warning("Invalid PUT response")
             return
         
-        logging.info(f"Received PUT response: {response.payload}")
+        # logging.info(f"Received PUT response: {response.payload}")

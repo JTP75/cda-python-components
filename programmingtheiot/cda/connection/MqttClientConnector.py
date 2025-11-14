@@ -118,7 +118,8 @@ f"""
                         ConfigConst.SECURE_PORT_KEY,
                         ConfigConst.DEFAULT_MQTT_SECURE_PORT
                     )
-                    self.mqttClient.tls_set(self.caFileName, tls_version=ssl.PROTOCOL_TLS_CLIENT)
+                    self.mqttClient.tls_set(self.caFileName, tls_version=ssl.PROTOCOL_TLS_CLIENT, cert_reqs=ssl.CERT_NONE)
+                    # self.mqttClient.tls_insecure_set(self.caFileName)
                     
             except Exception as e:
                 logging.error("TLS Encryption failed.")
